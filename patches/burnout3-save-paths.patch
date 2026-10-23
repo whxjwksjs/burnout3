@@ -1,7 +1,7 @@
 diff --git a/src/kernel/kernel_path.c b/src/kernel/kernel_path.c
 --- a/src/kernel/kernel_path.c
 +++ b/src/kernel/kernel_path.c
-@@ -44,3 +44,11 @@
+@@ -44,3 +44,10 @@
  static const path_rule s_rules[] = {
      { "\\Device\\CdRom0\\",                   0, NULL,         NULL          },
 +    /* Burnout 3's XAPI maps U: and T: to E:\\UDATA and E:\\TDATA. Keep
@@ -12,7 +12,7 @@ diff --git a/src/kernel/kernel_path.c b/src/kernel/kernel_path.c
 +    { "\\Device\\Harddisk0\\Partition1\\UDATA", 2, "\\UDATA",    "/UDATA"      },
 +    { "\\Device\\Harddisk0\\Partition1\\TDATA", 2, "\\TDATA",    "/TDATA"      },
      { "\\Device\\Harddisk0\\Partition1\\",    0, NULL,         NULL          },
-@@ -82,1 +90,12 @@
+@@ -82,1 +89,12 @@
  #define PATH_RULE_COUNT ((int)(sizeof(s_rules) / sizeof(s_rules[0])))
 +
 +/* The save-directory rules above deliberately match both the directory and
@@ -25,9 +25,9 @@ diff --git a/src/kernel/kernel_path.c b/src/kernel/kernel_path.c
 +        return 0;
 +    return skip;
 +}
-@@ -407,1 +426,1 @@
+@@ -407,1 +425,1 @@
 -        skip = match_prefix(xbox_path, s_rules[i].prefix);
 +        skip = rule_match(xbox_path, &s_rules[i]);
-@@ -558,1 +577,1 @@
+@@ -558,1 +576,1 @@
 -        skip = match_prefix(xbox_path, s_rules[i].prefix);
 +        skip = rule_match(xbox_path, &s_rules[i]);
