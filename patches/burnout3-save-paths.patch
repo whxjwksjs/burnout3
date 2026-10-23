@@ -25,9 +25,9 @@ diff --git a/src/kernel/kernel_path.c b/src/kernel/kernel_path.c
 +        return 0;
 +    return skip;
 +}
-@@ -407,1 +425,1 @@
+@@ -407,1 +427,1 @@
 -        skip = match_prefix(xbox_path, s_rules[i].prefix);
 +        skip = rule_match(xbox_path, &s_rules[i]);
-@@ -558,1 +576,1 @@
+@@ -558,1 +578,1 @@
 -        skip = match_prefix(xbox_path, s_rules[i].prefix);
 +        skip = rule_match(xbox_path, &s_rules[i]);
