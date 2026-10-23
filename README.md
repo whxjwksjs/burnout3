@@ -141,7 +141,7 @@ the step says Git Bash.
    git clone https://github.com/sp00nznet/burnout3
    git clone https://github.com/sp00nznet/xboxrecomp
    git -C xboxrecomp checkout afeb69f
-   git -C xboxrecomp apply burnout3\patches\burnout3-save-paths.patch
+   git -C xboxrecomp apply ..\burnout3\patches\burnout3-save-paths.patch
    ```
 
    Use toolkit commit `afeb69f` (2026-09-30, xboxrecomp #138-#156). Later
