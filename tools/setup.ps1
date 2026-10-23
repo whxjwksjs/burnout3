@@ -158,6 +158,7 @@ elseif ((Test-Path (Join-Path $Toolkit '.git')) -and (git -C $Toolkit rev-parse 
 $KernelPath = Join-Path $Toolkit 'src\kernel\kernel_path.c'
 $SavePathPatch = Join-Path $Root 'patches\burnout3-save-paths.patch'
 $HasSavePathFix = $false
+$SavePathPatchAppliedNow = $false
 if (Test-Path $KernelPath) {
   $HasSavePathFix = [bool](Select-String -Path $KernelPath -Pattern "Burnout 3's XAPI maps U: and T:" -Quiet)
 }
@@ -169,6 +170,7 @@ if (-not $HasSavePathFix) {
   if (-not (Test-Path $SavePathPatch)) { Fail "the save-path patch is missing: $SavePathPatch" }
   Run "Checking the Burnout 3 save-path patch" @('git', '-C', $Toolkit, 'apply', '--check', $SavePathPatch)
   Run "Applying the Burnout 3 save-path fix" @('git', '-C', $Toolkit, 'apply', $SavePathPatch)
+  $SavePathPatchAppliedNow = $true
 }
 else {
   Say "  Burnout 3 save-path fix: already applied"
@@ -228,7 +230,7 @@ else {
 
 # ---------------------------------------------------------------- build
 Step 4 "Building bin\burnout3.exe (10-40 minutes the first time)"
-if ((Test-Path 'bin\burnout3.exe') -and -not $Force) { Say "  Already built (skipping)." }
+if ((Test-Path 'bin\burnout3.exe') -and -not $Force -and -not $SavePathPatchAppliedNow) { Say "  Already built (skipping)." }
 else {
   Run "Configuring" @('cmake', '-S', '.', '-B', 'build-xr', '-G', 'Visual Studio 17 2022', '-A', 'x64')
   Run "Compiling" @('cmake', '--build', 'build-xr', '--config', 'Release', '--parallel', '2')
