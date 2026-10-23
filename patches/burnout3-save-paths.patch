@@ -1,8 +1,7 @@
 diff --git a/src/kernel/kernel_path.c b/src/kernel/kernel_path.c
 --- a/src/kernel/kernel_path.c
 +++ b/src/kernel/kernel_path.c
-@@ -44,3 +44,10 @@
- static const path_rule s_rules[] = {
+@@ -45,2 +45,9 @@ static const path_rule s_rules[] = {
      { "\\Device\\CdRom0\\",                   0, NULL,         NULL          },
 +    /* Burnout 3's XAPI maps U: and T: to E:\\UDATA and E:\\TDATA. Keep
 +     * those writable title-save directories under the persistent save root,
@@ -12,9 +11,8 @@ diff --git a/src/kernel/kernel_path.c b/src/kernel/kernel_path.c
 +    { "\\Device\\Harddisk0\\Partition1\\UDATA", 2, "\\UDATA",    "/UDATA"      },
 +    { "\\Device\\Harddisk0\\Partition1\\TDATA", 2, "\\TDATA",    "/TDATA"      },
      { "\\Device\\Harddisk0\\Partition1\\",    0, NULL,         NULL          },
-@@ -82,1 +89,12 @@
+@@ -82,2 +89,12 @@ static const path_rule s_rules[] = {
  #define PATH_RULE_COUNT ((int)(sizeof(s_rules) / sizeof(s_rules[0])))
-+
 +/* The save-directory rules above deliberately match both the directory and
 + * paths beneath it, but not a similarly prefixed asset name. */
 +static int rule_match(const char *path, const path_rule *r)
@@ -25,9 +23,13 @@ diff --git a/src/kernel/kernel_path.c b/src/kernel/kernel_path.c
 +        return 0;
 +    return skip;
 +}
-@@ -407,1 +425,1 @@
+ 
+@@ -407,3 +424,3 @@ static const path_rule s_rules[] = {
+     for (int i = 0; i < PATH_RULE_COUNT; i++) {
 -        skip = match_prefix(xbox_path, s_rules[i].prefix);
 +        skip = rule_match(xbox_path, &s_rules[i]);
-@@ -558,1 +576,1 @@
+         if (skip) {
+@@ -558,3 +575,3 @@ static const path_rule s_rules[] = {
+     for (int i = 0; i < PATH_RULE_COUNT; i++) {
 -        skip = match_prefix(xbox_path, s_rules[i].prefix);
 +        skip = rule_match(xbox_path, &s_rules[i]);
