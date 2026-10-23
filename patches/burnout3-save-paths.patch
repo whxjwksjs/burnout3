@@ -1,0 +1,34 @@
+diff --git a/src/kernel/kernel_path.c b/src/kernel/kernel_path.c
+index 0000000..0000000 100644
+--- a/src/kernel/kernel_path.c
++++ b/src/kernel/kernel_path.c
+@@
+ static const path_rule s_rules[] = {
+     { "\\Device\\CdRom0\\",                   0, NULL,         NULL          },
++    /* Burnout 3's XAPI maps U: and T: to E:\\UDATA and E:\\TDATA. Keep
++     * those writable title-save directories under the persistent save root,
++     * not beside the extracted disc files. to_save=2 marks a prefix that
++     * must end at a path boundary; rule_match below prevents UDATAX/TDATA2
++     * assets from being mistaken for save directories. */
++    { "\\Device\\Harddisk0\\Partition1\\UDATA", 2, "\\UDATA",    "/UDATA"      },
++    { "\\Device\\Harddisk0\\Partition1\\TDATA", 2, "\\TDATA",    "/TDATA"      },
+     { "\\Device\\Harddisk0\\Partition1\\",    0, NULL,         NULL          },
+@@
+ #define PATH_RULE_COUNT ((int)(sizeof(s_rules) / sizeof(s_rules[0])))
++
++/* The save-directory rules above deliberately match both the directory and
++ * paths beneath it, but not a similarly prefixed asset name. */
++static int rule_match(const char *path, const path_rule *r)
++{
++    int skip = match_prefix(path, r->prefix);
++    if (skip && r->to_save == 2 && path[skip] &&
++        path[skip] != '\\' && path[skip] != '/')
++        return 0;
++    return skip;
++}
+@@
+-        skip = match_prefix(xbox_path, s_rules[i].prefix);
++        skip = rule_match(xbox_path, &s_rules[i]);
+@@
+-        skip = match_prefix(xbox_path, s_rules[i].prefix);
++        skip = rule_match(xbox_path, &s_rules[i]);
