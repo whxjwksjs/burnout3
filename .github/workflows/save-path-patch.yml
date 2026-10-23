@@ -1,0 +1,32 @@
+name: save-path-patch
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "patches/burnout3-save-paths.patch"
+      - ".github/workflows/save-path-patch.yml"
+  pull_request:
+    paths:
+      - "patches/burnout3-save-paths.patch"
+      - ".github/workflows/save-path-patch.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  patch-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch the tested xboxrecomp revision
+        run: |
+          git clone https://github.com/sp00nznet/xboxrecomp ../xboxrecomp
+          git -C ../xboxrecomp checkout afeb69fe482930f5ccbb5d348740636807fe0784
+      - name: Check and apply the save-path backport
+        run: |
+          git -C ../xboxrecomp apply --check "$GITHUB_WORKSPACE/patches/burnout3-save-paths.patch"
+          git -C ../xboxrecomp apply "$GITHUB_WORKSPACE/patches/burnout3-save-paths.patch"
+          git -C ../xboxrecomp diff --check
+          grep -q "Burnout 3's XAPI maps U: and T:" ../xboxrecomp/src/kernel/kernel_path.c
