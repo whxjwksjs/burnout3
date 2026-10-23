@@ -151,6 +151,29 @@ elseif ((Test-Path (Join-Path $Toolkit '.git')) -and (git -C $Toolkit rev-parse 
   $short = $ToolkitRef.Substring(0, 7)
   Say "  Note: the toolkit is not at the tested commit $short. If the game stays black, run: git -C `"$Toolkit`" checkout $short" Yellow
 }
+# Burnout 3 writes its profile through E:\UDATA and E:\TDATA, which XAPI
+# maps into Partition1. The pinned toolkit maps all of Partition1 into the disc
+# folder, so backport the narrow save-path fix without taking newer runtime
+# changes that currently stop Burnout 3 from booting.
+$KernelPath = Join-Path $Toolkit 'src\kernel\kernel_path.c'
+$SavePathPatch = Join-Path $Root 'patches\burnout3-save-paths.patch'
+$HasSavePathFix = $false
+if (Test-Path $KernelPath) {
+  $HasSavePathFix = [bool](Select-String -Path $KernelPath -Pattern "Burnout 3's XAPI maps U: and T:" -Quiet)
+}
+if (-not $HasSavePathFix) {
+  $ToolkitHead = (git -C $Toolkit rev-parse HEAD).Trim()
+  if ($ToolkitHead -ne $ToolkitRef) {
+    Fail "the save-path fix targets xboxrecomp $($ToolkitRef.Substring(0,7)). Run git -C '$Toolkit' checkout $($ToolkitRef.Substring(0,7)) and run Setup.cmd again."
+  }
+  if (-not (Test-Path $SavePathPatch)) { Fail "the save-path patch is missing: $SavePathPatch" }
+  Run "Checking the Burnout 3 save-path patch" @('git', '-C', $Toolkit, 'apply', '--check', $SavePathPatch)
+  Run "Applying the Burnout 3 save-path fix" @('git', '-C', $Toolkit, 'apply', $SavePathPatch)
+}
+else {
+  Say "  Burnout 3 save-path fix: already applied"
+}
+
 Say "  xboxrecomp: $Toolkit"
 
 # ---------------------------------------------------------------- the game
